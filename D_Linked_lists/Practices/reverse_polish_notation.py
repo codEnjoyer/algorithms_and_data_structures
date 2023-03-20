@@ -14,7 +14,7 @@ def compute(line: List[str], operations: Dict[str, Callable]) -> int:
 
 
 def main():
-    line = "4 2 + 9 *".split()  # input().split()
+    line = input().split()
     char_operations = {
         "+": lambda y, x: x + y,
         "-": lambda y, x: x - y,
