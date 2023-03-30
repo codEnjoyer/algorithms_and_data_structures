@@ -1,27 +1,30 @@
-from llist import dllist
+from collections import deque
 
 
 def main():
-    q_left = deque()
-    q_right = deque()
-    for line_num in range(int(input())):
-        raw_command = input().split()
-        if len(raw_command) == 1:
-            q_not_empty = q_left if len(q_left) else q_right
-            q_not_empty.popleft()
+    q_left, q_right = deque(), deque()
+    for _ in range(int(input())):
+        char, *args = input().split()
+
+        total_len = len(q_left) + len(q_right)
+        middle_index = total_len // 2 + total_len % 2
+
+        if middle_index > len(q_left):
+            q_left.append(q_right.popleft())
+        elif middle_index < len(q_left):
+            q_right.appendleft(q_left.pop())
+
+        if char == "-":
+            print(q_left.popleft())
             continue
-        char, number = raw_command[0], int(raw_command[1])
+
+        number = int(args[0])
         if char == "+":
             q_right.append(number)
         elif char == "*":
-            index_to_insert = (len(q_left) + len(q_right)) // 2 + 1
-            if index_to_insert >= len(q_left):
-                q_right.insert(index_to_insert - len(q_left) - 1, number)
-            else:
-                q_left.append(number)
+            q_right.appendleft(number)
         elif char == "!":
             q_left.appendleft(number)
-        print(q_left, q_right, sep="\n")
 
 
 if __name__ == "__main__":
