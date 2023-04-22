@@ -17,8 +17,6 @@ def partition(array: list, left: int, right: int) -> int:
         if i <= j:
             array[i], array[j] = array[j], array[i]
             i, j = i + 1, j - 1
-        else:
-            break
     return i
 
 
