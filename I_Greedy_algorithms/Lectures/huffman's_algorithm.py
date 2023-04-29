@@ -77,7 +77,7 @@ def huffman(s: str) -> Dict[chr, int]:
 
 
 def main():
-    print(huffman("abracadabra"))
+    print(huffman("aabcde"))
 
 
 if __name__ == "__main__":
