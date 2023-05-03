@@ -13,41 +13,36 @@ class Node:
         self.left = left
         self.right = right
 
-    def __str__(self):
-        return f"{type(self).__name__}({self.data}, left = {self.left}, right = {self.right})"
-
-    def __repr__(self):
-        return f"{self.data}, {self.left}, {self.right}"
-
 
 class Tree:
     root: Node
 
     def __init__(self, array: List[int] = None, root: Node = None):
-        if root:
-            self.root = root
-            return
-        if array:
+        self.root = root
+        if array and root is None:
             self.from_array(array)
 
-    def add(self, data: int) -> None:
-        if self.root is None:
-            self.root = Node(data, None)
-            return
+    def add(self, data: int or List[int]) -> None:
+        if isinstance(data, int):
+            data = [data]
 
-        def _add(node: Node) -> None:
-            if data < node.data:
+        def _add(node: Node, key: int) -> None:
+            if key < node.data:
                 if node.left:
-                    _add(node.left)
+                    _add(node.left, key)
                     return
-                node.left = Node(data, node)
+                node.left = Node(key, node)
                 return
             if node.right:
-                _add(node.right)
+                _add(node.right, key)
                 return
-            node.right = Node(data, node)
+            node.right = Node(key, node)
 
-        return _add(self.root)
+        for value_key in data:
+            if self.root is None:
+                self.root = Node(value_key, None)
+                continue
+            _add(self.root, value_key)
 
     def from_array(self, array: List[int], left_border: int or None = None, right_border: int or None = None) -> "Tree":
         if left_border is None:
@@ -87,17 +82,17 @@ class Tree:
             indent = []
             if is_more_nodes_below:
                 indent = list(map(lambda b: '│\t' if b else '\t', is_more_nodes_below))
+                # When sending replace \t with 4 spaces
                 indent[-1] = "├───" if is_more_nodes_below[-1] else "└───"
-
             print(f"{''.join(indent)}{node.data}")
-            _print(node.left, is_more_nodes_below + [True])
+            _print(node.left, is_more_nodes_below + [node.right is not None])
             _print(node.right, is_more_nodes_below + [False])
 
         return _print(root)
 
-    def find(self, key: int, node: Node = None) -> Node or None:
-        if node is None:
-            node = self.root
+    def find(self, key: int, find_from: Node = None) -> Node or None:
+        if find_from is None:
+            find_from = self.root
 
         def _find(node: Node) -> Node or None:
             if node is None:
@@ -106,7 +101,7 @@ class Tree:
                 return node
             return _find(node.left) if node.data > key else _find(node.right)
 
-        return _find(node)
+        return _find(find_from)
 
     def delete(self, key: int) -> None:
         if self.root is None:
@@ -157,13 +152,34 @@ class Tree:
         return next_node.parent
 
 
+def process_input(tree: Tree) -> bool:
+    command, *args = input().split()
+    if command == "add":
+        tree.add(list(map(int, args)))
+        print("Ok")
+    elif command == "delete":
+        tree.delete(int(args[0]))
+        print("Ok")
+    elif command == "find":
+        node = tree.find(int(args[0]))
+        print(f"Число{' не ' if not node else ' '}нашлось")
+    elif command == "next":
+        node = tree.next(int(args[0]))
+        print(node.data if node else "Следующего числа нет")
+    elif command == "print":
+        tree.print()
+    elif command == "exit":
+        return False
+    return True
+
+
 def main():
-    array = [1, 3, 4, 9, 10, 10, 13, 15, 16]
+    # array = [1, 3, 4, 10, 13]
+    array = list(map(int, input().split()))
     tree = Tree(array)
-    tree.print()
-    tree.delete(10)
-    tree.print()
-    print(tree.next(10))
+    is_ongoing = True
+    while is_ongoing:
+        is_ongoing = process_input(tree)
 
 
 if __name__ == "__main__":
